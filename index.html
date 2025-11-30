@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Padel-Vokabelspiel – Familie & Verben (PWA)</title>
+  <title>Padel-Vokabelspiel – Vokabel-PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#020308" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -21,13 +21,10 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 12px;
-      padding: 12px;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background: var(--bg);
@@ -35,114 +32,80 @@
       touch-action: none;
     }
 
-    h1 {
-      margin: 4px 0 0;
-      font-size: 20px;
-      letter-spacing: 0.04em;
-      text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
-      text-align: center;
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      overflow: hidden;
     }
 
-    p.sub {
-      margin: 0 0 4px;
-      font-size: 12px;
-      opacity: 0.8;
-      text-align: center;
-      max-width: 420px;
-    }
-
-    .chrome {
-      padding: 8px 10px;
-      border-radius: 20px;
-      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 60%),
-        radial-gradient(circle at bottom right, rgba(127, 90, 240, 0.18), transparent 55%),
-        rgba(0, 0, 0, 0.6);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(18px) saturate(150%);
-      -webkit-backdrop-filter: blur(18px) saturate(150%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      max-width: 420px;
+    #gameCanvas {
+      display: block;
       width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, #1b2330 0, #020308 55%, #000 100%);
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+      touch-action: none;
     }
 
-    #topBar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      font-size: 12px;
-    }
-
+    /* HUD oben über dem Spielfeld */
     #hud {
-      display: flex;
-      gap: 8px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      gap: 10px;
       align-items: center;
-      padding: 4px 8px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.35);
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
-      flex-wrap: wrap;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.7));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      font-size: 13px;
+      z-index: 8;
     }
 
     #hud span.label {
       opacity: 0.7;
+      margin-right: 2px;
     }
 
     #hud span.value {
-      font-weight: 600;
-    }
-
-    button.ghost {
+      font-weight: 700;
+      padding: 2px 6px;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: linear-gradient(135deg, rgba(127, 90, 240, 0.18), rgba(255, 255, 255, 0.04));
-      color: var(--text);
-      font-size: 12px;
-      padding: 4px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      background: rgba(0, 0, 0, 0.35);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      min-width: 30px;
+      text-align: center;
     }
 
-    button.ghost:hover {
-      transform: translateY(-1px);
-      background: linear-gradient(135deg, rgba(127, 90, 240, 0.26), rgba(255, 255, 255, 0.08));
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
-    }
-
-    button.ghost span.icon {
+    #livesDisplay {
+      min-width: 60px;
+      letter-spacing: 1px;
       font-size: 14px;
     }
 
-    #gameContainer {
-      position: relative;
-      border-radius: 24px;
-      padding: 8px;
-      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.16), transparent 55%),
-        rgba(0, 0, 0, 0.7);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(22px) saturate(160%);
-      -webkit-backdrop-filter: blur(22px) saturate(160%);
-      width: 100%;
+    .valueChanged {
+      animation: hudPulse 0.35s ease;
     }
 
-    canvas {
-      display: block;
-      background: radial-gradient(circle at top, #1b2330 0, #020308 55%, #000 100%);
-      border-radius: 18px;
-      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
-      width: 100%;
-      height: auto;
-      touch-action: none;
+    @keyframes hudPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+      }
+      50% {
+        transform: scale(1.18);
+        box-shadow: 0 0 18px rgba(127, 90, 240, 0.8);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
     }
 
     /* Start-Overlay */
@@ -153,13 +116,13 @@
       align-items: center;
       justify-content: center;
       background: rgba(0, 0, 0, 0.6);
-      border-radius: 18px;
-      z-index: 5;
+      z-index: 6;
     }
 
     #startOverlayInner {
-      padding: 14px 16px;
+      padding: 16px 20px;
       border-radius: 18px;
+      max-width: 320px;
       background: radial-gradient(circle at top left, rgba(127, 90, 240, 0.35), rgba(0, 0, 0, 0.9));
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -167,11 +130,12 @@
       -webkit-backdrop-filter: blur(22px) saturate(180%);
       text-align: center;
       font-size: 14px;
+      color: var(--text);
     }
 
     #startButton {
-      margin-top: 8px;
-      padding: 7px 16px;
+      margin-top: 10px;
+      padding: 8px 18px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.22);
       background: linear-gradient(135deg, rgba(127, 90, 240, 0.9), rgba(46, 204, 113, 0.9));
@@ -203,6 +167,7 @@
       backdrop-filter: blur(22px) saturate(180%);
       -webkit-backdrop-filter: blur(22px) saturate(180%);
       font-size: 14px;
+      color: var(--text);
     }
 
     .questionCard h2 {
@@ -261,51 +226,24 @@
       min-height: 18px;
       opacity: 0.9;
     }
-
-    #gameOver {
-      margin-top: 10px;
-      font-size: 15px;
-      display: none;
-      text-align: center;
-    }
-
-    @media (min-width: 768px) {
-      h1 {
-        font-size: 22px;
-      }
-      p.sub {
-        font-size: 13px;
-      }
-    }
   </style>
 </head>
 <body>
-  <h1>Padel-Vokabelspiel – Familie, avoir & être</h1>
-  <p class="sub">
-    Tipp / Drag auf dem Spielfeld: Padel nach links/rechts bewegen. Alternativ Pfeiltasten (← →) oder Maus.
-    Schieße alle Klötze ab, dann kommen 3 Vokabel-Multiple-Choice-Fragen. 😈
-  </p>
-
-  <div class="chrome">
-    <div id="topBar">
-      <div id="hud">
-        <span class="label">Level:</span> <span class="value" id="levelDisplay">1</span>
-        <span class="label">| Speed:</span> <span class="value" id="speedDisplay">3.0</span>
-        <span class="label">| Leben:</span> <span class="value" id="livesDisplay">♥♥♥♥♥</span>
-      </div>
-      <button class="ghost" id="fullscreenBtn" type="button">
-        <span class="icon">⛶</span>
-        Vollbild
-      </button>
+  <div id="gameContainer">
+    <div id="hud">
+      <span class="label">Lvl</span><span class="value" id="levelDisplay">1</span>
+      <span class="label">Speed</span><span class="value" id="speedDisplay">3.0</span>
+      <span class="label">Leben</span><span class="value" id="livesDisplay">♥♥♥♥♥</span>
     </div>
 
-    <div id="gameContainer">
-      <canvas id="gameCanvas" width="360" height="600"></canvas>
-      <div id="startOverlay">
-        <div id="startOverlayInner">
-          <div>Tippe auf Start, um das Vokabel-Spiel zu beginnen.</div>
-          <button id="startButton">Start</button>
+    <canvas id="gameCanvas" width="360" height="600"></canvas>
+
+    <div id="startOverlay">
+      <div id="startOverlayInner">
+        <div>Tippe auf Start, um das Vokabel-Spiel zu beginnen.<br />
+          Steuere mit Pfeiltasten, Maus oder Finger.
         </div>
+        <button id="startButton">Start</button>
       </div>
     </div>
   </div>
@@ -318,8 +256,6 @@
       <div id="feedback"></div>
     </div>
   </div>
-
-  <div id="gameOver"></div>
 
   <script>
     // PWA: Service-Worker Registrieren
@@ -337,12 +273,10 @@
     const levelDisplay = document.getElementById("levelDisplay");
     const speedDisplay = document.getElementById("speedDisplay");
     const livesDisplay = document.getElementById("livesDisplay");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
     const questionOverlay = document.getElementById("questionOverlay");
     const questionText = document.getElementById("questionText");
     const optionsContainer = document.getElementById("optionsContainer");
     const feedback = document.getElementById("feedback");
-    const gameOverElem = document.getElementById("gameOver");
     const startOverlay = document.getElementById("startOverlay");
     const startButton = document.getElementById("startButton");
 
@@ -388,16 +322,6 @@
     function playGameOver() {
       playBeep(180, 0.35, "sine", 0.18);
     }
-
-    // --- Fullscreen (optional auf Handy, praktisch am Desktop) ---
-    fullscreenBtn.addEventListener("click", () => {
-      const container = document.documentElement;
-      if (!document.fullscreenElement) {
-        if (container.requestFullscreen) container.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
-    });
 
     let started = false;
     let isGameOver = false;
@@ -516,7 +440,7 @@
           dy: -baseSpeed,
         },
       ];
-      updateHUD();
+      updateHUD(true);
     }
 
     // --- Bricks & Effekte ---
@@ -570,6 +494,30 @@
       { fr: "nous sommes", de: "wir sind" },
       { fr: "vous êtes", de: "ihr seid" },
       { fr: "ils/elles sont", de: "sie sind" },
+      { fr: "ma", de: "meine (w., Sg.)" },
+      { fr: "mon", de: "mein (m./vokal, Sg.)" },
+      { fr: "mes", de: "meine (Pl.)" },
+      { fr: "ta", de: "deine (w., Sg.)" },
+      { fr: "ton", de: "dein (m./vokal, Sg.)" },
+      { fr: "tes", de: "deine (Pl.)" },
+      { fr: "notre", de: "unser (Sg.)" },
+      { fr: "nos", de: "unsere (Pl.)" },
+      { fr: "votre", de: "euer/Ihr (Sg.)" },
+      { fr: "vos", de: "eure/Ihre (Pl.)" },
+      { fr: "leur", de: "ihr (Sg.)" },
+      { fr: "leurs", de: "ihre (Pl.)" },
+      { fr: "un", de: "ein (m.)" },
+      { fr: "une", de: "eine (w.)" },
+      { fr: "des", de: "(einige) / Pl." },
+      { fr: "le", de: "der (best.)" },
+      { fr: "la", de: "die (best.)" },
+      { fr: "les", de: "die (Pl., best.)" },
+      { fr: "qui?", de: "wer?" },
+      { fr: "où?", de: "wo?" },
+      { fr: "quand?", de: "wann?" },
+      { fr: "comment?", de: "wie?" },
+      { fr: "pourquoi?", de: "warum?" },
+      { fr: "combien?", de: "wie viel(e)?" }
     ];
 
     const BRICK_TYPES = [BRICK_NORMAL, BRICK_SPEED, BRICK_BIG, BRICK_MULTI];
@@ -610,7 +558,7 @@
       bricksRemaining = brickRowCount * brickColumnCount;
     }
 
-    // --- Fragen ---
+    // --- Fragen (Basis: alle Vokabelbereiche) ---
     const QUESTIONS_PER_ROUND = 3;
     const questions = [
       {
@@ -663,6 +611,36 @@
         options: ["nos parents", "notre parents", "leurs parents", "vos parents"],
         correctIndex: 0,
       },
+      {
+        question: "Welche Form passt zu ‚tu‘ bei avoir?",
+        options: ["tu as", "tu est", "tu suis", "tu ont"],
+        correctIndex: 0,
+      },
+      {
+        question: "Welche Form passt zu ‚nous‘ bei être?",
+        options: ["nous avons", "nous sommes", "nous êtes", "nous ont"],
+        correctIndex: 1,
+      },
+      {
+        question: "‚mein Bruder‘ = ?",
+        options: ["ma frère", "mon frère", "mes frère", "le frère"],
+        correctIndex: 1,
+      },
+      {
+        question: "Unbestimmter Artikel: ‚ein Haus‘ = ?",
+        options: ["un maison", "une maison", "des maison", "la maison"],
+        correctIndex: 1,
+      },
+      {
+        question: "Fragewort: ‚warum?‘ = ?",
+        options: ["où?", "quand?", "comment?", "pourquoi?"],
+        correctIndex: 3,
+      },
+      {
+        question: "Fragewort: ‚wie viele?‘ = ?",
+        options: ["qui?", "combien?", "comment?", "pourquoi?"],
+        correctIndex: 1,
+      }
     ];
 
     let isPaused = true;
@@ -672,10 +650,32 @@
     let questionRoundPos = 0;
     let questionRoundCorrect = 0;
 
-    function updateHUD() {
-      levelDisplay.textContent = level;
-      speedDisplay.textContent = baseSpeed.toFixed(1);
-      livesDisplay.textContent = lives > 0 ? "♥".repeat(lives) : "✖";
+    let prevLevel = level;
+    let prevSpeed = baseSpeed;
+    let prevLives = lives;
+
+    function pulse(el) {
+      el.classList.remove("valueChanged");
+      void el.offsetWidth; // reflow
+      el.classList.add("valueChanged");
+    }
+
+    function updateHUD(force = false) {
+      if (force || level !== prevLevel) {
+        levelDisplay.textContent = level;
+        pulse(levelDisplay);
+        prevLevel = level;
+      }
+      if (force || Math.abs(baseSpeed - prevSpeed) > 0.001) {
+        speedDisplay.textContent = baseSpeed.toFixed(1);
+        pulse(speedDisplay);
+        prevSpeed = baseSpeed;
+      }
+      if (force || lives !== prevLives) {
+        livesDisplay.textContent = lives > 0 ? "♥".repeat(lives) : "✖";
+        pulse(livesDisplay);
+        prevLives = lives;
+      }
     }
 
     function shuffleArray(arr) {
@@ -1092,8 +1092,6 @@
           updateHUD();
           playGameOver();
           gameOverAnimActive = true;
-          gameOverElem.style.display = "block";
-          gameOverElem.textContent = "Game Over – keine Leben mehr. Bitte Seite neu laden.";
         } else {
           updateHUD();
           playLoseLife();
@@ -1111,7 +1109,7 @@
     // --- Start ---
     initBricks();
     resetBallsAndPaddle();
-    updateHUD();
+    updateHUD(true);
     update();
   </script>
 </body>
