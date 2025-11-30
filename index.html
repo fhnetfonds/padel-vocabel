@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Padel-Vokabelspiel – Familie & Verben (PWA)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#020308" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root {
+      --bg: radial-gradient(circle at top, #2c3e50 0, #000 55%, #000 100%);
+      --accent: #7f5af0;
+      --text: #f7f7ff;
+      --danger: #ff6b6b;
+      --success: #2ecc71;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 12px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      background-attachment: fixed;
+      touch-action: none;
+    }
+
+    h1 {
+      margin: 4px 0 0;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+      text-align: center;
+    }
+
+    p.sub {
+      margin: 0 0 4px;
+      font-size: 12px;
+      opacity: 0.8;
+      text-align: center;
+      max-width: 420px;
+    }
+
+    .chrome {
+      padding: 8px 10px;
+      border-radius: 20px;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(127, 90, 240, 0.18), transparent 55%),
+        rgba(0, 0, 0, 0.6);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    #topBar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 12px;
+    }
+
+    #hud {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+    }
+
+    #hud span.label {
+      opacity: 0.7;
+    }
+
+    #hud span.value {
+      font-weight: 600;
+    }
+
+    button.ghost {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: linear-gradient(135deg, rgba(127, 90, 240, 0.18), rgba(255, 255, 255, 0.04));
+      color: var(--text);
+      font-size: 12px;
+      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    button.ghost:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, rgba(127, 90, 240, 0.26), rgba(255, 255, 255, 0.08));
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    button.ghost span.icon {
+      font-size: 14px;
+    }
+
+    #gameContainer {
+      position: relative;
+      border-radius: 24px;
+      padding: 8px;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.16), transparent 55%),
+        rgba(0, 0, 0, 0.7);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      width: 100%;
+    }
+
+    canvas {
+      display: block;
+      background: radial-gradient(circle at top, #1b2330 0, #020308 55%, #000 100%);
+      border-radius: 18px;
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+      width: 100%;
+      height: auto;
+      touch-action: none;
+    }
+
+    /* Start-Overlay */
+    #startOverlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 18px;
+      z-index: 5;
+    }
+
+    #startOverlayInner {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, rgba(127, 90, 240, 0.35), rgba(0, 0, 0, 0.9));
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    #startButton {
+      margin-top: 8px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: linear-gradient(135deg, rgba(127, 90, 240, 0.9), rgba(46, 204, 113, 0.9));
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Modal-Overlay über dem Spielfeld */
+    #questionOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .questionCard {
+      padding: 14px 16px;
+      border-radius: 18px;
+      max-width: 420px;
+      width: 90%;
+      background: radial-gradient(circle at top left, rgba(127, 90, 240, 0.35), rgba(0, 0, 0, 0.9));
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      font-size: 14px;
+    }
+
+    .questionCard h2 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    #questionText {
+      margin-top: 4px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .options button {
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.07s ease, background 0.1s ease, border-color 0.1s ease;
+    }
+
+    .options button:hover {
+      transform: translateY(-1px);
+      background: rgba(127, 90, 240, 0.32);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .options button.correct {
+      background: rgba(46, 204, 113, 0.28);
+      border-color: var(--success);
+    }
+
+    .options button.wrong {
+      background: rgba(231, 76, 60, 0.26);
+      border-color: var(--danger);
+    }
+
+    #feedback {
+      margin-top: 6px;
+      font-size: 13px;
+      min-height: 18px;
+      opacity: 0.9;
+    }
+
+    #gameOver {
+      margin-top: 10px;
+      font-size: 15px;
+      display: none;
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 22px;
+      }
+      p.sub {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Padel-Vokabelspiel – Familie, avoir & être</h1>
+  <p class="sub">
+    Tipp / Drag auf dem Spielfeld: Padel nach links/rechts bewegen. Alternativ Pfeiltasten (← →) oder Maus.
+    Schieße alle Klötze ab, dann kommen 3 Vokabel-Multiple-Choice-Fragen. 😈
+  </p>
+
+  <div class="chrome">
+    <div id="topBar">
+      <div id="hud">
+        <span class="label">Level:</span> <span class="value" id="levelDisplay">1</span>
+        <span class="label">| Speed:</span> <span class="value" id="speedDisplay">3.0</span>
+        <span class="label">| Leben:</span> <span class="value" id="livesDisplay">♥♥♥♥♥</span>
+      </div>
+      <button class="ghost" id="fullscreenBtn" type="button">
+        <span class="icon">⛶</span>
+        Vollbild
+      </button>
+    </div>
+
+    <div id="gameContainer">
+      <canvas id="gameCanvas" width="360" height="600"></canvas>
+      <div id="startOverlay">
+        <div id="startOverlayInner">
+          <div>Tippe auf Start, um das Vokabel-Spiel zu beginnen.</div>
+          <button id="startButton">Start</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="questionOverlay">
+    <div class="questionCard">
+      <h2>Vokabel-Check</h2>
+      <div id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div id="feedback"></div>
+    </div>
+  </div>
+
+  <div id="gameOver"></div>
+
+  <script>
+    // PWA: Service-Worker Registrieren
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch((err) => {
+          console.warn("SW registration failed", err);
+        });
+      });
+    }
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const levelDisplay = document.getElementById("levelDisplay");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const livesDisplay = document.getElementById("livesDisplay");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const questionOverlay = document.getElementById("questionOverlay");
+    const questionText = document.getElementById("questionText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedback = document.getElementById("feedback");
+    const gameOverElem = document.getElementById("gameOver");
+    const startOverlay = document.getElementById("startOverlay");
+    const startButton = document.getElementById("startButton");
+
+    // --- Web Audio / Sound ---
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) {
+          audioCtx = new AC();
+        }
+      }
+      return audioCtx;
+    }
+
+    function playBeep(freq, duration, type = "sine", volume = 0.12) {
+      const ctxA = getAudioCtx();
+      if (!ctxA) return;
+      const osc = ctxA.createOscillator();
+      const gain = ctxA.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+      osc.connect(gain);
+      gain.connect(ctxA.destination);
+      const now = ctxA.currentTime;
+      osc.start(now);
+      osc.stop(now + duration);
+    }
+
+    function playBounce() {
+      playBeep(900, 0.06, "square", 0.1);
+    }
+    function playBrick() {
+      playBeep(600, 0.08, "triangle", 0.12);
+    }
+    function playPowerup() {
+      playBeep(1200, 0.12, "sawtooth", 0.12);
+    }
+    function playLoseLife() {
+      playBeep(220, 0.25, "sine", 0.15);
+    }
+    function playGameOver() {
+      playBeep(180, 0.35, "sine", 0.18);
+    }
+
+    // --- Fullscreen (optional auf Handy, praktisch am Desktop) ---
+    fullscreenBtn.addEventListener("click", () => {
+      const container = document.documentElement;
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) container.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    });
+
+    let started = false;
+    let isGameOver = false;
+
+    startButton.addEventListener("click", () => {
+      if (isGameOver) return;
+      getAudioCtx(); // initialisiere AudioContext nach User-Interaktion
+      started = true;
+      isPaused = false;
+      startOverlay.style.display = "none";
+    });
+
+    // --- Utility: Rounded Rect ---
+    function drawRoundedRect(x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h - radius);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      ctx.lineTo(x + radius, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // --- Padel ---
+    const paddleHeight = 14;
+    const paddleWidth = 110;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    const paddleY = canvas.height - paddleHeight - 18;
+    let rightPressed = false;
+    let leftPressed = false;
+
+    // --- Pointer-/Touch-Steuerung ---
+    let pointerDown = false;
+
+    function movePaddlePointer(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      paddleX = x - paddleWidth / 2;
+      if (paddleX < 0) paddleX = 0;
+      if (paddleX + paddleWidth > canvas.width) paddleX = canvas.width - paddleWidth;
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      pointerDown = true;
+      movePaddlePointer(e);
+      canvas.setPointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+      if (!pointerDown) return;
+      movePaddlePointer(e);
+    });
+
+    canvas.addEventListener("pointerup", (e) => {
+      pointerDown = false;
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    });
+
+    // --- Bälle ---
+    const baseBallRadius = 8;
+    let balls = [];
+    let baseSpeed = 3.0;
+    let speedBoostActive = false;
+    const speedBoostFactor = 1.5;
+    let speedBoostTimeout = null;
+    let bigBallActive = false;
+    let bigBallTimeout = null;
+
+    function currentBallRadius() {
+      return baseBallRadius * (bigBallActive ? 3 : 1);
+    }
+
+    function applySpeedBoost() {
+      if (speedBoostTimeout) clearTimeout(speedBoostTimeout);
+      if (!speedBoostActive) {
+        speedBoostActive = true;
+        balls.forEach((b) => {
+          b.dx *= speedBoostFactor;
+          b.dy *= speedBoostFactor;
+        });
+        playPowerup();
+      }
+      speedBoostTimeout = setTimeout(() => {
+        balls.forEach((b) => {
+          b.dx /= speedBoostFactor;
+          b.dy /= speedBoostFactor;
+        });
+        speedBoostActive = false;
+      }, 10000);
+    }
+
+    function applyBigBall() {
+      if (bigBallTimeout) clearTimeout(bigBallTimeout);
+      bigBallActive = true;
+      playPowerup();
+      bigBallTimeout = setTimeout(() => {
+        bigBallActive = false;
+      }, 10000);
+    }
+
+    function resetBallsAndPaddle() {
+      paddleX = (canvas.width - paddleWidth) / 2;
+      const dir = Math.random() > 0.5 ? 1 : -1;
+      balls = [
+        {
+          x: canvas.width / 2,
+          y: canvas.height - 80,
+          dx: baseSpeed * dir,
+          dy: -baseSpeed,
+        },
+      ];
+      updateHUD();
+    }
+
+    // --- Bricks & Effekte ---
+    let brickRowCount = 7; // etwas mehr Reihen
+    let brickColumnCount = 4; // weniger Spalten → breitere Steine
+    const brickPadding = 8;
+    const brickOffsetTop = 70;
+    const brickMarginSides = 24;
+    let brickWidth =
+      (canvas.width - brickMarginSides * 2 - (brickColumnCount - 1) * brickPadding) / brickColumnCount;
+    const brickHeight = 24;
+
+    const BRICK_NORMAL = "normal";
+    const BRICK_SPEED = "speed"; // Explosion + Speedboost
+    const BRICK_BIG = "big"; // Großer Ball
+    const BRICK_MULTI = "multi"; // Verdoppelt Ball
+
+    let bricks = [];
+    let bricksRemaining = brickRowCount * brickColumnCount;
+
+    const vocabPairs = [
+      { fr: "la famille", de: "die Familie" },
+      { fr: "les parents", de: "die Eltern" },
+      { fr: "les grands-parents", de: "die Großeltern" },
+      { fr: "le père", de: "der Vater" },
+      { fr: "la mère", de: "die Mutter" },
+      { fr: "le frère", de: "der Bruder" },
+      { fr: "la sœur", de: "die Schwester" },
+      { fr: "le demi-frère", de: "der Halbbruder" },
+      { fr: "la demi-sœur", de: "die Halbschwester" },
+      { fr: "l'oncle", de: "der Onkel" },
+      { fr: "la tante", de: "die Tante" },
+      { fr: "le cousin", de: "der Cousin" },
+      { fr: "la cousine", de: "die Cousine" },
+      { fr: "l'enfant", de: "das Kind" },
+      { fr: "le fils", de: "der Sohn" },
+      { fr: "la fille", de: "die Tochter" },
+      { fr: "à la maison", de: "zu Hause" },
+      { fr: "ma sœur", de: "meine Schwester" },
+      { fr: "mon frère", de: "mein Bruder" },
+      { fr: "nos parents", de: "unsere Eltern" },
+      { fr: "j'ai", de: "ich habe" },
+      { fr: "tu as", de: "du hast" },
+      { fr: "il/elle a", de: "er/sie hat" },
+      { fr: "nous avons", de: "wir haben" },
+      { fr: "vous avez", de: "ihr habt" },
+      { fr: "ils/elles ont", de: "sie haben" },
+      { fr: "je suis", de: "ich bin" },
+      { fr: "tu es", de: "du bist" },
+      { fr: "il/elle est", de: "er/sie ist" },
+      { fr: "nous sommes", de: "wir sind" },
+      { fr: "vous êtes", de: "ihr seid" },
+      { fr: "ils/elles sont", de: "sie sind" },
+    ];
+
+    const BRICK_TYPES = [BRICK_NORMAL, BRICK_SPEED, BRICK_BIG, BRICK_MULTI];
+
+    let activeTranslations = [];
+
+    // Game-Over-Overlay Zustand
+    let gameOverAnimActive = false;
+    let gameOverX = 0;
+
+    function showTranslation(text, x, y) {
+      activeTranslations.push({ text, x, y, created: performance.now() });
+    }
+
+    function initBricks() {
+      bricks = [];
+      brickWidth =
+        (canvas.width - brickMarginSides * 2 - (brickColumnCount - 1) * brickPadding) / brickColumnCount;
+      const offsetLeft = brickMarginSides;
+      let vocabIndex = 0;
+      for (let r = 0; r < brickRowCount; r++) {
+        bricks[r] = [];
+        for (let c = 0; c < brickColumnCount; c++) {
+          const x = offsetLeft + c * (brickWidth + brickPadding);
+          const y = brickOffsetTop + r * (brickHeight + brickPadding);
+          const type = BRICK_TYPES[(r * brickColumnCount + c) % BRICK_TYPES.length];
+          const vocabId = vocabIndex % vocabPairs.length;
+          vocabIndex++;
+          bricks[r][c] = {
+            x,
+            y,
+            status: 1,
+            type,
+            vocabIndex: vocabId,
+          };
+        }
+      }
+      bricksRemaining = brickRowCount * brickColumnCount;
+    }
+
+    // --- Fragen ---
+    const QUESTIONS_PER_ROUND = 3;
+    const questions = [
+      {
+        question: "Was heißt ‚die Familie‘ auf Französisch?",
+        options: ["la famille", "la maison", "le frère", "les parents"],
+        correctIndex: 0,
+      },
+      {
+        question: "Wie sagt man ‚mein Vater‘ auf Französisch?",
+        options: ["ma père", "mon père", "mes père", "le père"],
+        correctIndex: 1,
+      },
+      {
+        question: "‚wir haben‘ = ?",
+        options: ["nous avons", "nous sommes", "vous avez", "ils ont"],
+        correctIndex: 0,
+      },
+      {
+        question: "‚sie sind‘ (Plural) = ?",
+        options: ["ils ont", "ils sont", "ils avez", "ils être"],
+        correctIndex: 1,
+      },
+      {
+        question: "Was heißt ‚die Großeltern‘?",
+        options: ["les parents", "les grands-parents", "les enfants", "les cousins"],
+        correctIndex: 1,
+      },
+      {
+        question: "Richtiges Possessivpronomen: ‚meine Schwester‘ = ?",
+        options: ["mon sœur", "ma sœur", "mes sœur", "ta sœur"],
+        correctIndex: 1,
+      },
+      {
+        question: "Bestimmter Artikel für ‚famille‘?",
+        options: ["le", "la", "les", "un"],
+        correctIndex: 1,
+      },
+      {
+        question: "Was heißt ‚eine Halbschwester‘?",
+        options: ["une demi-sœur", "une sœur demi", "un demi-sœur", "une belle-sœur"],
+        correctIndex: 0,
+      },
+      {
+        question: "‚sie haben‘ (3. Person Plural) = ?",
+        options: ["ils sont", "ils avons", "ils ont", "ils êtes"],
+        correctIndex: 2,
+      },
+      {
+        question: "Was heißt ‚unsere Eltern‘?",
+        options: ["nos parents", "notre parents", "leurs parents", "vos parents"],
+        correctIndex: 0,
+      },
+    ];
+
+    let isPaused = true;
+    let level = 1;
+    let lives = 5;
+    let questionRoundIndices = [];
+    let questionRoundPos = 0;
+    let questionRoundCorrect = 0;
+
+    function updateHUD() {
+      levelDisplay.textContent = level;
+      speedDisplay.textContent = baseSpeed.toFixed(1);
+      livesDisplay.textContent = lives > 0 ? "♥".repeat(lives) : "✖";
+    }
+
+    function shuffleArray(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function startQuestionRound() {
+      const indices = shuffleArray(questions.map((_, i) => i));
+      questionRoundIndices = indices.slice(0, QUESTIONS_PER_ROUND);
+      questionRoundPos = 0;
+      questionRoundCorrect = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const qIndex = questionRoundIndices[questionRoundPos];
+      const q = questions[qIndex];
+      questionText.textContent = q.question;
+      feedback.textContent = "";
+      optionsContainer.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(idx));
+        optionsContainer.appendChild(btn);
+      });
+      questionOverlay.style.display = "flex";
+    }
+
+    function handleAnswer(selectedIndex) {
+      const qIndex = questionRoundIndices[questionRoundPos];
+      const q = questions[qIndex];
+      const buttons = optionsContainer.querySelectorAll("button");
+
+      buttons.forEach((btn, idx) => {
+        if (idx === q.correctIndex) btn.classList.add("correct");
+        if (idx === selectedIndex && idx !== q.correctIndex) btn.classList.add("wrong");
+        btn.disabled = true;
+      });
+
+      if (selectedIndex === q.correctIndex) {
+        feedback.textContent = "✅ Richtig!";
+        questionRoundCorrect++;
+      } else {
+        feedback.textContent = "❌ Falsch!";
+      }
+
+      setTimeout(() => {
+        questionRoundPos++;
+        if (questionRoundPos < QUESTIONS_PER_ROUND) {
+          showQuestion();
+        } else {
+          finishQuestionRound();
+        }
+      }, 1200);
+    }
+
+    function finishQuestionRound() {
+      const wrong = QUESTIONS_PER_ROUND - questionRoundCorrect;
+      if (wrong > 0) {
+        baseSpeed *= 1 + 0.15 * wrong;
+      }
+      level++;
+      updateHUD();
+      initBricks();
+      resetBallsAndPaddle();
+      questionOverlay.style.display = "none";
+      isPaused = false;
+    }
+
+    function nextLevel() {
+      isPaused = true;
+      startQuestionRound();
+    }
+
+    // --- Input Keyboard ---
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "Right") rightPressed = true;
+      if (e.key === "ArrowLeft" || e.key === "Left") leftPressed = true;
+    });
+
+    document.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowRight" || e.key === "Right") rightPressed = false;
+      if (e.key === "ArrowLeft" || e.key === "Left") leftPressed = false;
+    });
+
+    function drawBackground() {
+      const bgGrad = ctx.createRadialGradient(
+        canvas.width / 2,
+        40,
+        10,
+        canvas.width / 2,
+        canvas.height / 2,
+        canvas.width / 1.2
+      );
+      bgGrad.addColorStop(0, "rgba(127, 90, 240, 0.35)");
+      bgGrad.addColorStop(0.4, "rgba(15, 52, 96, 0.65)");
+      bgGrad.addColorStop(1, "rgba(0, 0, 0, 1)");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawPaddle() {
+      const gradient = ctx.createLinearGradient(paddleX, paddleY, paddleX, paddleY + paddleHeight);
+      gradient.addColorStop(0, "rgba(127, 90, 240, 0.95)");
+      gradient.addColorStop(1, "rgba(46, 204, 113, 0.85)");
+      drawRoundedRect(paddleX, paddleY, paddleWidth, paddleHeight, 9);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.save();
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.ellipse(
+        paddleX + paddleWidth * 0.4,
+        paddleY + paddleHeight * 0.25,
+        paddleWidth * 0.4,
+        paddleHeight * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawBalls() {
+      const r = currentBallRadius();
+      balls.forEach((ball) => {
+        const gradient = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 1, ball.x, ball.y, r + 2);
+        gradient.addColorStop(0, "#ffffff");
+        gradient.addColorStop(0.3, "#f1c40f");
+        gradient.addColorStop(1, "#e67e22");
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, r + 8, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(241, 196, 15, 0.9)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    function drawBricks() {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "11px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+      for (let r = 0; r < brickRowCount; r++) {
+        for (let c = 0; c < brickColumnCount; c++) {
+          const b = bricks[r][c];
+          if (b.status !== 1) continue;
+          const gx = b.x;
+          const gy = b.y;
+          let gradient;
+          if (b.type === BRICK_NORMAL) {
+            gradient = ctx.createLinearGradient(gx, gy, gx + brickWidth, gy + brickHeight);
+            gradient.addColorStop(0, "rgba(127, 90, 240, 0.95)");
+            gradient.addColorStop(1, "rgba(52, 152, 219, 0.95)");
+          } else if (b.type === BRICK_SPEED) {
+            gradient = ctx.createLinearGradient(gx, gy, gx + brickWidth, gy + brickHeight);
+            gradient.addColorStop(0, "rgba(231, 76, 60, 0.95)");
+            gradient.addColorStop(1, "rgba(241, 196, 15, 0.95)");
+          } else if (b.type === BRICK_BIG) {
+            gradient = ctx.createLinearGradient(gx, gy, gx + brickWidth, gy + brickHeight);
+            gradient.addColorStop(0, "rgba(46, 204, 113, 0.95)");
+            gradient.addColorStop(1, "rgba(26, 188, 156, 0.95)");
+          } else if (b.type === BRICK_MULTI) {
+            gradient = ctx.createLinearGradient(gx, gy, gx + brickWidth, gy + brickHeight);
+            gradient.addColorStop(0, "rgba(155, 89, 182, 0.95)");
+            gradient.addColorStop(1, "rgba(241, 196, 15, 0.95)");
+          }
+
+          drawRoundedRect(gx, gy, brickWidth, brickHeight, 10);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          drawRoundedRect(gx + 4, gy + 3, brickWidth - 8, brickHeight / 2.4, 8);
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
+          ctx.fill();
+          ctx.restore();
+
+          const vocab = vocabPairs[b.vocabIndex];
+          if (vocab) {
+            ctx.save();
+            ctx.fillStyle = "#111";
+            ctx.globalAlpha = 0.7;
+            ctx.fillText(vocab.fr, gx + brickWidth / 2 + 1, gy + brickHeight / 2 + 1);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#fdfdfd";
+            ctx.fillText(vocab.fr, gx + brickWidth / 2, gy + brickHeight / 2);
+            ctx.restore();
+          }
+        }
+      }
+    }
+
+    function drawTranslations() {
+      const now = performance.now();
+      const duration = 1000; // 1 Sekunde
+      const remaining = [];
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.font = "13px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+      for (const t of activeTranslations) {
+        const age = now - t.created;
+        if (age < duration) {
+          const progress = age / duration;
+          const alpha = 1 - progress;
+          const yOffset = -20 - 20 * progress;
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "rgba(0,0,0,0.7)";
+          ctx.lineWidth = 3;
+          ctx.strokeText(t.text, t.x, t.y + yOffset);
+          ctx.fillText(t.text, t.x, t.y + yOffset);
+          ctx.restore();
+          remaining.push(t);
+        }
+      }
+
+      activeTranslations = remaining;
+    }
+
+    function drawGameOverOverlay() {
+      const text = "GAME OVER";
+      ctx.save();
+
+      // leicht abdunkeln
+      ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Old-School Text
+      ctx.font = "32px 'Press Start 2P', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const y = canvas.height / 2;
+
+      if (gameOverX === 0) {
+        gameOverX = canvas.width + 120;
+      }
+      gameOverX -= 2; // Laufgeschwindigkeit
+      if (gameOverX < -120) {
+        gameOverX = canvas.width + 120;
+      }
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(0,0,0,0.9)";
+      ctx.strokeText(text, gameOverX, y);
+      ctx.fillStyle = "rgba(255, 0, 80, 0.95)";
+      ctx.fillText(text, gameOverX, y);
+
+      ctx.restore();
+    }
+
+    function drawScene() {
+      drawBackground();
+      drawBricks();
+      drawPaddle();
+      drawBalls();
+      drawTranslations();
+      if (gameOverAnimActive) {
+        drawGameOverOverlay();
+      }
+    }
+
+    function explodeNeighbors(row, col) {
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const nr = row + dr;
+          const nc = col + dc;
+          if (nr >= 0 && nr < brickRowCount && nc >= 0 && nc < brickColumnCount) {
+            const nb = bricks[nr][nc];
+            if (nb && nb.status === 1) {
+              nb.status = 0;
+              bricksRemaining--;
+              const v = vocabPairs[nb.vocabIndex];
+              if (v) showTranslation(v.de, nb.x + brickWidth / 2, nb.y + brickHeight / 2);
+            }
+          }
+        }
+      }
+    }
+
+    function handleBrickHit(row, col, ballIndex) {
+      const b = bricks[row][col];
+      if (!b || b.status === 0) return;
+      b.status = 0;
+      bricksRemaining--;
+
+      const v = vocabPairs[b.vocabIndex];
+      if (v) showTranslation(v.de, b.x + brickWidth / 2, b.y + brickHeight / 2);
+
+      const ball = balls[ballIndex];
+      ball.dy = -ball.dy;
+      playBrick();
+
+      if (b.type === BRICK_SPEED) {
+        explodeNeighbors(row, col);
+        applySpeedBoost();
+      } else if (b.type === BRICK_BIG) {
+        applyBigBall();
+      } else if (b.type === BRICK_MULTI) {
+        if (balls.length < 4) {
+          balls.push({ x: ball.x, y: ball.y, dx: -ball.dx, dy: ball.dy });
+          playPowerup();
+        }
+      }
+
+      if (bricksRemaining <= 0) {
+        nextLevel();
+      }
+    }
+
+    function collisionDetection() {
+      const r = currentBallRadius();
+      for (let bi = 0; bi < balls.length; bi++) {
+        const ball = balls[bi];
+        outer: for (let row = 0; row < brickRowCount; row++) {
+          for (let col = 0; col < brickColumnCount; col++) {
+            const b = bricks[row][col];
+            if (!b || b.status !== 1) continue;
+            if (
+              ball.x > b.x &&
+              ball.x < b.x + brickWidth &&
+              ball.y - r < b.y + brickHeight &&
+              ball.y + r > b.y
+            ) {
+              handleBrickHit(row, col, bi);
+              break outer;
+            }
+          }
+        }
+      }
+    }
+
+    function update() {
+      if (!started || isPaused || isGameOver) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawScene();
+        requestAnimationFrame(update);
+        return;
+      }
+
+      const paddleSpeed = 6;
+      if (rightPressed) paddleX += paddleSpeed;
+      if (leftPressed) paddleX -= paddleSpeed;
+      if (paddleX < 0) paddleX = 0;
+      if (paddleX + paddleWidth > canvas.width) paddleX = canvas.width - paddleWidth;
+
+      const r = currentBallRadius();
+
+      for (let i = balls.length - 1; i >= 0; i--) {
+        const ball = balls[i];
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if (ball.x - r < 0 || ball.x + r > canvas.width) {
+          ball.dx = -ball.dx;
+          playBounce();
+        }
+        if (ball.y - r < 0) {
+          ball.dy = -ball.dy;
+          playBounce();
+        }
+
+        if (ball.y - r > canvas.height) {
+          balls.splice(i, 1);
+          continue;
+        }
+
+        if (
+          ball.y + r >= paddleY &&
+          ball.y + r <= paddleY + paddleHeight + 4 &&
+          ball.x >= paddleX &&
+          ball.x <= paddleX + paddleWidth &&
+          ball.dy > 0
+        ) {
+          const center = paddleX + paddleWidth / 2;
+          const distanceFromCenter = ball.x - center;
+          const norm = distanceFromCenter / (paddleWidth / 2);
+          const maxBounceAngle = (75 * Math.PI) / 180;
+          const bounceAngle = norm * maxBounceAngle;
+          const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy) || baseSpeed;
+          ball.dx = speed * Math.sin(bounceAngle);
+          ball.dy = -speed * Math.cos(bounceAngle);
+          playBounce();
+        }
+      }
+
+      if (balls.length === 0) {
+        lives--;
+        if (lives <= 0) {
+          lives = 0;
+          isGameOver = true;
+          isPaused = true;
+          updateHUD();
+          playGameOver();
+          gameOverAnimActive = true;
+          gameOverElem.style.display = "block";
+          gameOverElem.textContent = "Game Over – keine Leben mehr. Bitte Seite neu laden.";
+        } else {
+          updateHUD();
+          playLoseLife();
+          resetBallsAndPaddle();
+        }
+      }
+
+      collisionDetection();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawScene();
+      requestAnimationFrame(update);
+    }
+
+    // --- Start ---
+    initBricks();
+    resetBallsAndPaddle();
+    updateHUD();
+    update();
+  </script>
+</body>
+</html>
